@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<math.h>
-
+#include <time.h>
 
 /* 
 
@@ -37,7 +37,7 @@ void skip_comments(FILE* file) {
 	ungetc(ch, file); // Put the non-comment character back into the stream
 }
 
-//sobel filter to be applied to the input_image ,just a convolurion operation in time , very simple
+//sobel filter to be applied to the input_image ,2D Matrice*Matrice 
 void sobel_filter(const unsigned char* input_image, unsigned char* output_image, int width, int height) {
 	int Gx[3][3] = {
 		{-1, 0, 1},
@@ -165,15 +165,16 @@ unsigned char* read_Image(const char* fileName, int* width, int* height) {
 int main() {
 	int width, height;
     //width number of col
-	//hight number of rows
+	//height number of rows
 	
-	//to read the image provide the path (this tested path exemple is in windows)
-	unsigned char* input_image = read_Image("D:/Cpp/Image_Pro/MultiThread_Image/x64/Debug/sample.pgm", &width, &height);
+	//to read the image provide the path 
+	unsigned char* input_image = read_Image("img0024.pgm", &width, &height);
 
 	if (input_image) {
 		printf("Input_Image Dimensions: %dx%d\n", width, height);
 				
 	}
+
 
 	// Allocate memory for the output image
 	unsigned char* output_image = (unsigned char*)malloc(width * height);
@@ -182,12 +183,32 @@ int main() {
 		free(input_image);
 		return -1;
 	}
-
+	
+	//clock_t start_time = clock();
+	struct timespec start_time, end_time;
+    clock_gettime(CLOCK_MONOTONIC, &start_time); // Start timing
+	
+	
 	// Apply Sobel filter
-	sobel_filter(input_image, output_image, width, height);
+    sobel_filter(input_image, output_image, width, height);
+    
+	// Stop measuring time
+	clock_gettime(CLOCK_MONOTONIC, &end_time); // End timing
+	
+	
+	// Calculate execution time in seconds
 
+    double execution_time = (end_time.tv_sec - start_time.tv_sec) +
+                            (end_time.tv_nsec - start_time.tv_nsec) / 1e9;
+
+ 
+    printf("Execution Time: %.4f seconds\n", execution_time);
+	
+	
+	
+    
 	// Write the output image
-	write_image("output.pgm", output_image, width, height);
+	write_image("output_monothread.pgm", output_image, width, height);
 
 	
 
@@ -196,7 +217,7 @@ int main() {
 	free(output_image);
 
 
-	getchar();
+	
 	return 0;
 	
 }
